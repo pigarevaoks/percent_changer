@@ -1,0 +1,13 @@
+.container {
+    border-top: 1px solid #ecebeb;
+    box-sizing: border-box;
+}
+
+.list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.item {
+    margin-bottom: 5px;
+}
