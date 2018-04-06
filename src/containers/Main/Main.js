@@ -1,31 +1,63 @@
 import React from 'react';
-import { Button, QuantityInput, RangeSlider, ResultList } from 'components';
+import { Button, RangeSlider, ResultList } from 'components';
+import { filter, getMax, getMin, toRound } from 'helpers';
 import styles from './Main.css';
 
 class Main extends React.Component {
 
     state = {
         items: [
-            { name: "Item 1", percent: 0 }
+            { name: "Item 1", percent: 100 }
         ] 
     }
 
     _onAddRangeSlider = () => {
         let newItems = this.state.items.slice();
-        newItems.push({ name: `Item ${newItems.length + 1}`, percent: 0 });
+        const sum = newItems.reduce((sum, item) => sum + item.percent, 0)
+        newItems.push({ name: `Item ${newItems.length + 1}`, percent: 100 - sum });
         this.setState({ items: newItems });
     }
 
     _onDeleteRangeSlider = () => {
         let newItems = this.state.items.slice();
-        newItems.pop();
+        const removedItem = newItems.pop();
+        newItems[0].percent += removedItem.percent
         this.setState({ items: newItems });
     }
 
+    _distribution = (array, delta) => {
+        if (delta === 0 || array.length === 0) return
+
+        if (delta < 0) {
+            const maxItem = getMax(array)
+            const diff = maxItem.percent - Math.abs(delta)
+            if (diff < 0) {
+                maxItem.percent = 0
+                this._distribution(filter(array, maxItem), diff)
+            } else {
+                maxItem.percent = toRound(maxItem.percent + delta)
+            }
+        } else {
+            const minItem = getMin(array)
+            minItem.percent = toRound(minItem.percent + delta)
+        }
+    }
+
     _onChange = (key, value) => {
-        const newItems = this.state.items.slice();
-        newItems[key].percent = value;
-        this.setState({ items: newItems })
+        this.setState(prevState => {
+            const newItems = prevState.items.slice();
+            let currentItem = newItems[key]
+            const otherItems = filter(newItems, currentItem)
+
+            if (otherItems.length > 0) {
+                const delta = toRound(newItems[key].percent - value)
+                this._distribution(otherItems, delta)
+            }
+
+            currentItem.percent = Number(value);
+            otherItems.splice(key, 0, currentItem)
+            return ({ items: otherItems })
+        }) 
     }
 
     render() {
@@ -40,10 +72,14 @@ class Main extends React.Component {
                     </div>
                     {items.map((item, index) => {
                         return (
-                            <div className={styles.row} key={index}>
-                                <RangeSlider layout={styles.slider} {...item} index={index} onChange={this._onChange} />
-                                <QuantityInput layout={styles.input} percent={item.percent} index={index} onChange={this._onChange} />
-                            </div>
+                            <RangeSlider 
+                                key={index} 
+                                layout={styles.slider} 
+                                percent={item.percent} 
+                                name={item.name} 
+                                index={index} 
+                                onChange={this._onChange} 
+                            />
                         )}
                     )}
                     <ResultList items={items} />
