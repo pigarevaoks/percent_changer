@@ -6,6 +6,7 @@ class RangeSlider extends React.Component {
 
     render() {
         const { layout, name, percent, index, onChange  } = this.props;
+        
         return(
             <div className={classNames([styles.container, layout])}>
                 <span className={styles.title}>{name}</span>

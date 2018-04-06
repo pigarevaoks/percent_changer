@@ -7,8 +7,21 @@ class Main extends React.Component {
 
     state = {
         items: [
-            { name: "Item 1", percent: 100 }
+            { name: "Item 1", percent: 0 }
         ] 
+    }
+
+    componentDidMount() {
+        const sum = this.state.items.reduce((sum, item) => sum + item.percent, 0)
+        if ( sum > 100 || sum === 0) {
+            this.setState(prevState => {
+                const newItems = prevState.items.map((item, index) => {
+                    index === 0 ? item.percent = 100 : item.percent = 0
+                    return item
+                })
+                return ({ items: newItems })
+            })
+        }
     }
 
     _onAddRangeSlider = () => {
