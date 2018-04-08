@@ -32,6 +32,8 @@ class Main extends React.Component {
     }
 
     _onDeleteRangeSlider = () => {
+        if (this.state.items.length === 1) return;
+
         let newItems = this.state.items.slice();
         const removedItem = newItems.pop();
         newItems[0].percent += removedItem.percent;
