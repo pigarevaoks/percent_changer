@@ -12,21 +12,21 @@ class Main extends React.Component {
     }
 
     componentDidMount() {
-        const sum = this.state.items.reduce((sum, item) => sum + item.percent, 0)
+        const sum = this.state.items.reduce((sum, item) => sum + item.percent, 0);
         if ( sum > 100 || sum === 0) {
             this.setState(prevState => {
                 const newItems = prevState.items.map((item, index) => {
-                    index === 0 ? item.percent = 100 : item.percent = 0
-                    return item
+                    index === 0 ? item.percent = 100 : item.percent = 0;
+                    return item;
                 })
-                return ({ items: newItems })
+                return ({ items: newItems });
             })
         }
     }
 
     _onAddRangeSlider = () => {
         let newItems = this.state.items.slice();
-        const sum = newItems.reduce((sum, item) => sum + item.percent, 0)
+        const sum = newItems.reduce((sum, item) => sum + item.percent, 0);
         newItems.push({ name: `Item ${newItems.length + 1}`, percent: 100 - sum });
         this.setState({ items: newItems });
     }
@@ -34,42 +34,42 @@ class Main extends React.Component {
     _onDeleteRangeSlider = () => {
         let newItems = this.state.items.slice();
         const removedItem = newItems.pop();
-        newItems[0].percent += removedItem.percent
+        newItems[0].percent += removedItem.percent;
         this.setState({ items: newItems });
     }
 
     _distribution = (array, delta) => {
-        if (delta === 0 || array.length === 0) return
+        if (array.length === 0) return;
 
-        if (delta < 0) {
-            const maxItem = getMax(array)
-            const diff = maxItem.percent - Math.abs(delta)
+        if (delta > 0) {
+            const maxItem = getMax(array);
+            const diff = maxItem.percent - delta;
             if (diff < 0) {
-                maxItem.percent = 0
-                this._distribution(filter(array, maxItem), diff)
+                maxItem.percent = 0;
+                this._distribution(filter(array, maxItem), Math.abs(diff));
             } else {
-                maxItem.percent = toRound(maxItem.percent + delta)
+                maxItem.percent = toRound(maxItem.percent - delta);
             }
         } else {
-            const minItem = getMin(array)
-            minItem.percent = toRound(minItem.percent + delta)
+            const minItem = getMin(array);
+            minItem.percent = toRound(minItem.percent - delta);
         }
     }
 
     _onChange = (key, value) => {
         this.setState(prevState => {
             const newItems = prevState.items.slice();
-            let currentItem = newItems[key]
-            const otherItems = filter(newItems, currentItem)
+            let currentItem = newItems[key];
+            const otherItems = filter(newItems, currentItem);
 
             if (otherItems.length > 0) {
-                const delta = toRound(newItems[key].percent - value)
-                this._distribution(otherItems, delta)
+                const delta = toRound(value - currentItem.percent);
+                this._distribution(otherItems, delta);
             }
 
             currentItem.percent = Number(value);
-            otherItems.splice(key, 0, currentItem)
-            return ({ items: otherItems })
+            otherItems.splice(key, 0, currentItem);
+            return ({ items: otherItems });
         }) 
     }
 
