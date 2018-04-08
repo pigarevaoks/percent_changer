@@ -41,18 +41,14 @@ class Main extends React.Component {
     _distribution = (array, delta) => {
         if (array.length === 0) return;
 
-        if (delta > 0) {
-            const maxItem = getMax(array);
-            const diff = maxItem.percent - delta;
-            if (diff < 0) {
-                maxItem.percent = 0;
-                this._distribution(filter(array, maxItem), Math.abs(diff));
-            } else {
-                maxItem.percent = toRound(maxItem.percent - delta);
-            }
+        let currentItem = (delta > 0) ? getMax(array) : getMin(array)
+        const diff = currentItem.percent - delta;
+
+        if (diff < 0) {
+            currentItem.percent = 0;
+            this._distribution(filter(array, currentItem), Math.abs(diff));
         } else {
-            const minItem = getMin(array);
-            minItem.percent = toRound(minItem.percent - delta);
+            currentItem.percent = toRound(currentItem.percent - delta);
         }
     }
 
